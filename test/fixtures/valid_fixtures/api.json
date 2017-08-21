@@ -1,0 +1,2224 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1",
+    "title": "Provisioning API",
+    "description": "API for provisioning data"
+  },
+  "host": "provisionings.machinetohuman.com",
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic",
+      "description": "Required to authenticate requests."
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/notify": {
+      "post": {
+        "description": "Special endpoint that follows the specifications of DCP's \"Notification Interface\". Received notifications on payments and purchases.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "imsi": {
+                  "type": "string",
+                  "description": "IMSI of the users SIM"
+                },
+                "transactionId": {
+                  "type": "string",
+                  "description": "Transaction ID from NETS PSP."
+                },
+                "purchaseId": {
+                  "type": "string",
+                  "description": "Purchase ID from DCP store front. Can be null in cases when no purchase was made (e.g. if transaction was refused)."
+                },
+                "transactionStatus": {
+                  "type": "string",
+                  "description": "If the transaction was successful or not",
+                  "enum": [
+                    "SUCCESS",
+                    "FAILURE"
+                  ]
+                },
+                "transactionType": {
+                  "type": "string",
+                  "description": "Transaction type",
+                  "enum": [
+                    "CHARGE",
+                    "REFUND",
+                    "ACTIVATION"
+                  ]
+                },
+                "failureCode": {
+                  "type": "number",
+                  "description": "If transactionStatus is \"FAILURE\", this code will be set"
+                },
+                "failureReason": {
+                  "type": "string",
+                  "description": "Textual representation of the failure"
+                }
+              },
+              "required": [
+                "imsi",
+                "transactionId",
+                "purchaseId",
+                "transactionStatus",
+                "transactionType"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Responds with 200 if transaction notification was processed successfully"
+          }
+        }
+      }
+    },
+    "/v1/devices": {
+      "get": {
+        "description": "Allows search for devices. Generally only matches 1 device.",
+        "parameters": [
+          {
+            "name": "short_id",
+            "in": "query",
+            "type": "string",
+            "required": true,
+            "description": "The short_id of the device (case-insensitive)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of Device entities",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "device_id",
+                  "short_id"
+                ],
+                "properties": {
+                  "device_id": {
+                    "type": "string"
+                  },
+                  "short_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Add a device to the system",
+        "parameters": [
+          {
+            "name": "device",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "carton_id": {
+                  "type": "string",
+                  "description": "Identifier for the carton device is delivered in",
+                  "example": "f01aeake33"
+                },
+                "serial_number": {
+                  "type": "string",
+                  "description": "Serial number of the device (e.g. manufacturers serial number)",
+                  "example": "0123456789"
+                },
+                "imei": {
+                  "type": "string",
+                  "description": "IMEI of the device",
+                  "example": "123456789012345"
+                },
+                "iccid": {
+                  "type": "string",
+                  "description": "Integrated Circuit Card ID (SIM card identifier)",
+                  "example": "89458421140102014111"
+                },
+                "sim_imsi": {
+                  "type": "string",
+                  "description": "International Mobile Subscriber Identity of the SIM card in the device",
+                  "example": "238208700474711"
+                },
+                "short_id": {
+                  "type": "string",
+                  "description": "Case-insensitive unique short ID (a.k.a. Terminal ID) for the device",
+                  "example": "afe456"
+                },
+                "source_file": {
+                  "type": "string",
+                  "description": "Name of the source file for the device",
+                  "example": "537f844b2883b0d8c825eeff.txt"
+                },
+                "import_id": {
+                  "type": "string",
+                  "description": "Unique identifier for the actual device import",
+                  "example": "537f844b2883b0d8c825270d"
+                },
+                "make": {
+                  "type": "string",
+                  "description": "Name of manufacturer of device",
+                  "example": "zte"
+                },
+                "model": {
+                  "type": "string",
+                  "description": "Model name of device",
+                  "example": "6200"
+                }
+              },
+              "required": [
+                "carton_id",
+                "serial_number",
+                "imei",
+                "iccid",
+                "sim_imsi",
+                "short_id",
+                "source_file",
+                "import_id"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created device",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "short_id": {
+                  "type": "string"
+                },
+                "sim_imsi": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "device_id",
+                "short_id",
+                "sim_imsi"
+              ]
+            }
+          },
+          "304": {
+            "description": "Device already created"
+          },
+          "422": {
+            "description": "Invalid device parameters"
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}": {
+      "get": {
+        "description": "Get a device",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The device_id/imei of the device"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requested device",
+            "schema": {
+              "type": "object",
+              "required": [
+                "device_id",
+                "short_id",
+                "sim_imsi"
+              ],
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "short_id": {
+                  "type": "string"
+                },
+                "sim_imsi": {
+                  "type": "string"
+                },
+                "group": {
+                  "type": "string"
+                },
+                "make": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Update device properties",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The device_id/imei of the device"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Properties to update",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "group": {
+                  "type": "string",
+                  "description": "Device group, e.g. which reseller or target user group it belongs to",
+                  "enum": [
+                    "bilia-se",
+                    "folksam-test",
+                    "springworks-test",
+                    "telia-se-hardware-bundle",
+                    "telia-se-soho",
+                    "springworks-campaign-test",
+                    "telia-dk-campaign"
+                  ]
+                }
+              },
+              "required": [
+                "group"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response when update was successful",
+            "schema": {
+              "type": "object",
+              "required": [
+                "device_id",
+                "short_id",
+                "sim_imsi"
+              ],
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "short_id": {
+                  "type": "string"
+                },
+                "sim_imsi": {
+                  "type": "string"
+                },
+                "group": {
+                  "type": "string"
+                },
+                "make": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device does not exist",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "error_id": {
+                  "type": "string",
+                  "description": "Error identifier"
+                },
+                "root_error_id": {
+                  "type": "string",
+                  "description": "Identifier of root cause error"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "path",
+                      "message"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "statusCode",
+                "error",
+                "message",
+                "error_id",
+                "root_error_id"
+              ]
+            }
+          },
+          "422": {
+            "description": "Invalid update properties",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "error_id": {
+                  "type": "string",
+                  "description": "Error identifier"
+                },
+                "root_error_id": {
+                  "type": "string",
+                  "description": "Identifier of root cause error"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "path",
+                      "message"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "statusCode",
+                "error",
+                "message",
+                "error_id",
+                "root_error_id"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/data_balance": {
+      "get": {
+        "description": "Get the data balance for the device.",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "The device for which we need the data balance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object with remaining bytes",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "remaining_bytes": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/orders": {
+      "get": {
+        "description": "Returns all orders for a device",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "description": "ID of device",
+            "required": true
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "type": "string",
+            "description": "Search by order state, for example: state=purchase_completed"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succesfully returned all orders",
+            "schema": {
+              "type": "array",
+              "items": {
+                "title": "Order entity",
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "Unique order identifier"
+                  },
+                  "amount": {
+                    "type": "integer",
+                    "description": "Price in the lowest denomination in this currency"
+                  },
+                  "company_organization_number": {
+                    "type": "string",
+                    "description": "Organization number of the company product was purchased from (e.g. Telia)"
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "currency_code": {
+                    "type": "string",
+                    "description": "Currency code according to ISO 4217"
+                  },
+                  "device_id": {
+                    "type": "string",
+                    "description": "Unique ID of TEM device, i.e IMEI number"
+                  },
+                  "is_renewal": {
+                    "type": "boolean",
+                    "description": "Indicates if the order was a subscription renewal"
+                  },
+                  "localized_description": {
+                    "type": "string",
+                    "description": "Description of the product, localized into the language used when purchasing it"
+                  },
+                  "payment_url": {
+                    "type": "string",
+                    "description": "URL pointing to the transaction for finalizing the purchase"
+                  },
+                  "product_id": {
+                    "type": "string",
+                    "description": "DCP product id, normally a string containing underscores"
+                  },
+                  "product_type": {
+                    "type": "string",
+                    "description": "One of the values default_recurrent, recurrent, one_time"
+                  },
+                  "service_name": {
+                    "type": "string",
+                    "description": "Name of the service product was purchased in, e.g. Telia Sense"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "payment_failed",
+                      "payment_processing",
+                      "payment_succeeded",
+                      "purchase_completed",
+                      "purchase_failed",
+                      "refund_failed",
+                      "refund_succeeded"
+                    ],
+                    "description": "Current state of order"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "vat_amount": {
+                    "type": "integer",
+                    "description": "VAT amount in cents"
+                  },
+                  "vat_number": {
+                    "type": "string",
+                    "description": "VAT number of the company selling the product (e.g. Telia)"
+                  },
+                  "vat_percent": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "The percentage of the amount that is VAT rounded to nearest integer. Returns null if the arguments aren't valid numbers or the result is infinity."
+                  }
+                },
+                "required": [
+                  "_id",
+                  "amount",
+                  "created_at",
+                  "currency_code",
+                  "device_id",
+                  "is_renewal",
+                  "product_id",
+                  "state",
+                  "updated_at"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/product_offers": {
+      "get": {
+        "description": "Get available product offers for a device, filtered according to provisioning state, etc.",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "description": "ID of client/device in query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Offer list",
+            "schema": {
+              "type": "array",
+              "items": {
+                "title": "Product offer entity",
+                "type": "object",
+                "properties": {
+                  "currency_code": {
+                    "type": "string",
+                    "description": "Currency code according to ISO 4217"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of product offer"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name of product offer"
+                  },
+                  "price": {
+                    "type": "integer",
+                    "description": "Price of product, in lowest denomination possible for this currency"
+                  },
+                  "product_offer_id": {
+                    "type": "string",
+                    "description": "Unique ID of this product offer"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Type of offer",
+                    "enum": [
+                      "default_recurrent",
+                      "one_time",
+                      "recurrent"
+                    ]
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "description": "Indicates if the product is the currently active for the device. Also true if this was the last active product for an expired subscription."
+                  },
+                  "product_id": {
+                    "type": "string",
+                    "description": "Product identifier, usually a string containing underscores",
+                    "example": "TS_CC_Local_20GB_monthly"
+                  },
+                  "is_business_offering": {
+                    "type": "boolean",
+                    "description": "Indicates if product is for businesses",
+                    "example": "false"
+                  }
+                },
+                "required": [
+                  "currency_code",
+                  "description",
+                  "name",
+                  "price",
+                  "product_offer_id",
+                  "type",
+                  "active",
+                  "product_id",
+                  "is_business_offering"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/provisioning": {
+      "get": {
+        "description": "Get provisioning for a device.",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "description": "ID of client/device in query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provisioning entity",
+            "schema": {
+              "title": "Provisioning entity",
+              "type": "object",
+              "required": [
+                "device_id",
+                "fleet_id",
+                "partner",
+                "market",
+                "vin",
+                "state",
+                "mismatching_vin",
+                "created_at",
+                "updated_at"
+              ],
+              "properties": {
+                "device_id": {
+                  "type": "string",
+                  "description": "Unique ID of TEM device, i.e IMSI number"
+                },
+                "fleet_id": {
+                  "type": "string",
+                  "description": "ID of fleet designation"
+                },
+                "partner": {
+                  "type": "string",
+                  "description": "Partner identifier. **NB!** Please use `market` instead as partner is deprecated."
+                },
+                "market": {
+                  "type": "string",
+                  "description": "Market identifier"
+                },
+                "vin": {
+                  "type": "string",
+                  "description": "Vehicle Identification Number"
+                },
+                "state": {
+                  "type": "string",
+                  "description": "Current state of the provisioning",
+                  "enum": [
+                    "created",
+                    "active",
+                    "inactive"
+                  ]
+                },
+                "mismatching_vin": {
+                  "type": "boolean",
+                  "description": "True if the device detected vin does not match the registered vin. False for dev vehicles and when the vin cannot be detected."
+                },
+                "created_at": {
+                  "type": "string",
+                  "description": "Timestamp of provisioning creation",
+                  "format": "date-time"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "description": "Timestamp of provisioning update",
+                  "format": "date-time"
+                },
+                "device_replacement": {
+                  "type": "object",
+                  "required": [
+                    "state",
+                    "updated_at"
+                  ],
+                  "properties": {
+                    "state": {
+                      "type": "string",
+                      "description": "Current state of the device replacement",
+                      "enum": [
+                        "initiated",
+                        "pairing_begun",
+                        "replaced"
+                      ]
+                    },
+                    "new_device_id": {
+                      "type": "string",
+                      "description": "New device id"
+                    },
+                    "new_sim_imsi": {
+                      "type": "string",
+                      "description": "New sim imsi"
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "Timestamp of provisioning device replacement update",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User has no permissions to read data yet, or the deviceis not provisioned"
+          },
+          "404": {
+            "description": "This device has not been provisioned"
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/provisioning/device_detected_vin": {
+      "put": {
+        "description": "Process and store VIN reported from device",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "description": "ID of client/device in query",
+            "required": true
+          },
+          {
+            "name": "vin_object",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "vin": {
+                  "type": "string",
+                  "description": "Vehicle Identification Number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provisioning was updated with provided detected vin",
+            "schema": {
+              "type": "object",
+              "required": [
+                "device_detected_vin",
+                "mismatching_vin"
+              ],
+              "properties": {
+                "device_detected_vin": {
+                  "type": "string",
+                  "description": "VIN detected by the device"
+                },
+                "mismatching_vin": {
+                  "type": "boolean",
+                  "description": "Indicates if detected vin is different than registered vin"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "a detected vin already stored"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/provisioning/device_replacement": {
+      "patch": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "description": "Id of the device",
+            "required": true
+          },
+          {
+            "name": "state_object",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "state"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "description": "Device replacement state",
+                  "enum": [
+                    "initiated"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "required": [
+                "state",
+                "updated_at"
+              ],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "description": "The state of the device replacement"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/subscription": {
+      "get": {
+        "description": "Get information about the subscription for a device.",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription has failed renewal and has an expiration date",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "expiration_date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Indicates that subscription is expiring at the specified date"
+                },
+                "next_renewal_date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Indicates that subscription is renewed at the specified date"
+                },
+                "localized_description": {
+                  "type": "string"
+                },
+                "product_id": {
+                  "type": "string",
+                  "description": "Product identifier, usually a string containing underscores",
+                  "example": "TS_CC_Local_20GB_monthly"
+                }
+              },
+              "required": [
+                "device_id"
+              ]
+            }
+          }
+        }
+      },
+      "patch": {
+        "description": "Allows cancellation of subscription (by next renewal date).",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "is_cancelled",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "description": "Indicates that subscription should be cancelled. Only `true` is allowed.",
+              "required": [
+                "is_cancelled"
+              ],
+              "properties": {
+                "is_cancelled": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The modified subscription entity",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "expiration_date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Indicates that subscription is expiring at the specified date"
+                },
+                "next_renewal_date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Indicates that subscription is renewed at the specified date"
+                },
+                "localized_description": {
+                  "type": "string"
+                },
+                "product_id": {
+                  "type": "string",
+                  "description": "Product identifier, usually a string containing underscores",
+                  "example": "TS_CC_Local_20GB_monthly"
+                }
+              },
+              "required": [
+                "device_id"
+              ]
+            }
+          },
+          "304": {
+            "description": "Subscription not modified"
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/subscription/expiration_date": {
+      "put": {
+        "description": "Update expiration date of a subscription (to make it expire sooner).",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "expiration_date",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "expiration_date"
+              ],
+              "properties": {
+                "expiration_date": {
+                  "type": "string",
+                  "description": "Date and time the subscription should expire. Must be earlier than current expiration_date.",
+                  "format": "date-time",
+                  "example": "2016-04-27T13:53:12.641Z"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription expiration date has been updated",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "expiration_date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Indicates that subscription is expiring at the specified date"
+                },
+                "next_renewal_date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Indicates that subscription is renewed at the specified date"
+                },
+                "localized_description": {
+                  "type": "string"
+                },
+                "product_id": {
+                  "type": "string",
+                  "description": "Product identifier, usually a string containing underscores",
+                  "example": "TS_CC_Local_20GB_monthly"
+                }
+              },
+              "required": [
+                "device_id"
+              ]
+            }
+          },
+          "403": {
+            "description": "Subscription has not expired or provided date is not earlier than the current expiration_date.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "error_id": {
+                  "type": "string",
+                  "description": "Error identifier"
+                },
+                "root_error_id": {
+                  "type": "string",
+                  "description": "Identifier of root cause error"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "path",
+                      "message"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "statusCode",
+                "error",
+                "message",
+                "error_id",
+                "root_error_id"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/subscription/payment_info/card_change_info": {
+      "get": {
+        "description": "Get the payment provider url for changing the credit card used for renewing the current subscription",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Initiated a transaction and returns URL to finalize it.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "payment_url": {
+                  "type": "string"
+                },
+                "transaction_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/devices/{device_id}/subscription/payment_info/card_info": {
+      "get": {
+        "description": "Get the current card information used for the subscription",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information about current credit card used for subscription",
+            "schema": {
+              "type": "object",
+              "required": [
+                "card_number",
+                "expiration_month",
+                "expiration_year",
+                "brand"
+              ],
+              "properties": {
+                "card_number": {
+                  "description": "Masked card number",
+                  "type": "string"
+                },
+                "expiration_month": {
+                  "description": "ISO Month of when the card expires",
+                  "type": "number"
+                },
+                "expiration_year": {
+                  "description": "ISO Year of when the card expires",
+                  "type": "number"
+                },
+                "brand": {
+                  "description": "Brand of card",
+                  "type": "string",
+                  "enum": [
+                    "visa",
+                    "master_card",
+                    "american_express",
+                    "other"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/orders": {
+      "post": {
+        "description": "Create an order of a product offer for a device",
+        "parameters": [
+          {
+            "name": "order",
+            "in": "body",
+            "description": "order payload",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "product_offer_id": {
+                  "type": "string"
+                },
+                "user_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created order",
+            "schema": {
+              "title": "Order entity",
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "description": "Unique order identifier"
+                },
+                "amount": {
+                  "type": "integer",
+                  "description": "Price in the lowest denomination in this currency"
+                },
+                "company_organization_number": {
+                  "type": "string",
+                  "description": "Organization number of the company product was purchased from (e.g. Telia)"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "currency_code": {
+                  "type": "string",
+                  "description": "Currency code according to ISO 4217"
+                },
+                "device_id": {
+                  "type": "string",
+                  "description": "Unique ID of TEM device, i.e IMEI number"
+                },
+                "is_renewal": {
+                  "type": "boolean",
+                  "description": "Indicates if the order was a subscription renewal"
+                },
+                "localized_description": {
+                  "type": "string",
+                  "description": "Description of the product, localized into the language used when purchasing it"
+                },
+                "payment_url": {
+                  "type": "string",
+                  "description": "URL pointing to the transaction for finalizing the purchase"
+                },
+                "product_id": {
+                  "type": "string",
+                  "description": "DCP product id, normally a string containing underscores"
+                },
+                "product_type": {
+                  "type": "string",
+                  "description": "One of the values default_recurrent, recurrent, one_time"
+                },
+                "service_name": {
+                  "type": "string",
+                  "description": "Name of the service product was purchased in, e.g. Telia Sense"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "created",
+                    "payment_failed",
+                    "payment_processing",
+                    "payment_succeeded",
+                    "purchase_completed",
+                    "purchase_failed",
+                    "refund_failed",
+                    "refund_succeeded"
+                  ],
+                  "description": "Current state of order"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "vat_amount": {
+                  "type": "integer",
+                  "description": "VAT amount in cents"
+                },
+                "vat_number": {
+                  "type": "string",
+                  "description": "VAT number of the company selling the product (e.g. Telia)"
+                },
+                "vat_percent": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "The percentage of the amount that is VAT rounded to nearest integer. Returns null if the arguments aren't valid numbers or the result is infinity."
+                }
+              },
+              "required": [
+                "_id",
+                "amount",
+                "created_at",
+                "currency_code",
+                "device_id",
+                "is_renewal",
+                "product_id",
+                "state",
+                "updated_at"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/v1/orders/{order_id}": {
+      "get": {
+        "deprecated": true,
+        "description": "Get order from order id.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "type": "string",
+            "description": "ID of order to fetch",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order",
+            "schema": {
+              "title": "Order entity",
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "description": "Unique order identifier"
+                },
+                "amount": {
+                  "type": "integer",
+                  "description": "Price in the lowest denomination in this currency"
+                },
+                "company_organization_number": {
+                  "type": "string",
+                  "description": "Organization number of the company product was purchased from (e.g. Telia)"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "currency_code": {
+                  "type": "string",
+                  "description": "Currency code according to ISO 4217"
+                },
+                "device_id": {
+                  "type": "string",
+                  "description": "Unique ID of TEM device, i.e IMEI number"
+                },
+                "is_renewal": {
+                  "type": "boolean",
+                  "description": "Indicates if the order was a subscription renewal"
+                },
+                "localized_description": {
+                  "type": "string",
+                  "description": "Description of the product, localized into the language used when purchasing it"
+                },
+                "payment_url": {
+                  "type": "string",
+                  "description": "URL pointing to the transaction for finalizing the purchase"
+                },
+                "product_id": {
+                  "type": "string",
+                  "description": "DCP product id, normally a string containing underscores"
+                },
+                "product_type": {
+                  "type": "string",
+                  "description": "One of the values default_recurrent, recurrent, one_time"
+                },
+                "service_name": {
+                  "type": "string",
+                  "description": "Name of the service product was purchased in, e.g. Telia Sense"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "created",
+                    "payment_failed",
+                    "payment_processing",
+                    "payment_succeeded",
+                    "purchase_completed",
+                    "purchase_failed",
+                    "refund_failed",
+                    "refund_succeeded"
+                  ],
+                  "description": "Current state of order"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "vat_amount": {
+                  "type": "integer",
+                  "description": "VAT amount in cents"
+                },
+                "vat_number": {
+                  "type": "string",
+                  "description": "VAT number of the company selling the product (e.g. Telia)"
+                },
+                "vat_percent": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "The percentage of the amount that is VAT rounded to nearest integer. Returns null if the arguments aren't valid numbers or the result is infinity."
+                }
+              },
+              "required": [
+                "_id",
+                "amount",
+                "created_at",
+                "currency_code",
+                "device_id",
+                "is_renewal",
+                "product_id",
+                "state",
+                "updated_at"
+              ]
+            }
+          }
+        }
+      },
+      "patch": {
+        "deprecated": true,
+        "description": "Used to update state of an order to `payment_processing`, essentially processing the payment and charging the credit card.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "type": "string",
+            "description": "ID of order to update",
+            "required": true
+          },
+          {
+            "name": "state",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "payment_processing"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order state modified and payment request sent to DCP. Order state should be checked periodically to get notified about updates.",
+            "schema": {
+              "title": "Order entity",
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "description": "Unique order identifier"
+                },
+                "amount": {
+                  "type": "integer",
+                  "description": "Price in the lowest denomination in this currency"
+                },
+                "company_organization_number": {
+                  "type": "string",
+                  "description": "Organization number of the company product was purchased from (e.g. Telia)"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "currency_code": {
+                  "type": "string",
+                  "description": "Currency code according to ISO 4217"
+                },
+                "device_id": {
+                  "type": "string",
+                  "description": "Unique ID of TEM device, i.e IMEI number"
+                },
+                "is_renewal": {
+                  "type": "boolean",
+                  "description": "Indicates if the order was a subscription renewal"
+                },
+                "localized_description": {
+                  "type": "string",
+                  "description": "Description of the product, localized into the language used when purchasing it"
+                },
+                "payment_url": {
+                  "type": "string",
+                  "description": "URL pointing to the transaction for finalizing the purchase"
+                },
+                "product_id": {
+                  "type": "string",
+                  "description": "DCP product id, normally a string containing underscores"
+                },
+                "product_type": {
+                  "type": "string",
+                  "description": "One of the values default_recurrent, recurrent, one_time"
+                },
+                "service_name": {
+                  "type": "string",
+                  "description": "Name of the service product was purchased in, e.g. Telia Sense"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "created",
+                    "payment_failed",
+                    "payment_processing",
+                    "payment_succeeded",
+                    "purchase_completed",
+                    "purchase_failed",
+                    "refund_failed",
+                    "refund_succeeded"
+                  ],
+                  "description": "Current state of order"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "vat_amount": {
+                  "type": "integer",
+                  "description": "VAT amount in cents"
+                },
+                "vat_number": {
+                  "type": "string",
+                  "description": "VAT number of the company selling the product (e.g. Telia)"
+                },
+                "vat_percent": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "The percentage of the amount that is VAT rounded to nearest integer. Returns null if the arguments aren't valid numbers or the result is infinity."
+                }
+              },
+              "required": [
+                "_id",
+                "amount",
+                "created_at",
+                "currency_code",
+                "device_id",
+                "is_renewal",
+                "product_id",
+                "state",
+                "updated_at"
+              ]
+            }
+          },
+          "404": {
+            "description": "Order is already processed, or does not exist"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/v1/ping": {
+      "get": {
+        "description": "Responds successfully if API is healthy. Requires no authentication.",
+        "tags": [
+          "Health check"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Indicates that server is healthy",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/v1/provisionings": {
+      "get": {
+        "description": "Search provisionings based on various properties.",
+        "parameters": [
+          {
+            "name": "device_id",
+            "in": "query",
+            "type": "string",
+            "description": "Search by device_id"
+          },
+          {
+            "name": "vin",
+            "in": "query",
+            "type": "string",
+            "description": "Search by Vehicle Identification Number"
+          },
+          {
+            "name": "fleet_id",
+            "in": "query",
+            "type": "string",
+            "description": "Search by fleet_id"
+          },
+          {
+            "name": "sim_imsi",
+            "in": "query",
+            "type": "string",
+            "description": "Search by IMSI number of SIM-card"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Indicates that server is healthy",
+            "schema": {
+              "type": "array",
+              "items": {
+                "title": "Provisioning entity",
+                "type": "object",
+                "required": [
+                  "device_id",
+                  "fleet_id",
+                  "partner",
+                  "market",
+                  "vin",
+                  "state",
+                  "mismatching_vin",
+                  "created_at",
+                  "updated_at"
+                ],
+                "properties": {
+                  "device_id": {
+                    "type": "string",
+                    "description": "Unique ID of TEM device, i.e IMSI number"
+                  },
+                  "fleet_id": {
+                    "type": "string",
+                    "description": "ID of fleet designation"
+                  },
+                  "partner": {
+                    "type": "string",
+                    "description": "Partner identifier. **NB!** Please use `market` instead as partner is deprecated."
+                  },
+                  "market": {
+                    "type": "string",
+                    "description": "Market identifier"
+                  },
+                  "vin": {
+                    "type": "string",
+                    "description": "Vehicle Identification Number"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "Current state of the provisioning",
+                    "enum": [
+                      "created",
+                      "active",
+                      "inactive"
+                    ]
+                  },
+                  "mismatching_vin": {
+                    "type": "boolean",
+                    "description": "True if the device detected vin does not match the registered vin. False for dev vehicles and when the vin cannot be detected."
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "description": "Timestamp of provisioning creation",
+                    "format": "date-time"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "description": "Timestamp of provisioning update",
+                    "format": "date-time"
+                  },
+                  "device_replacement": {
+                    "type": "object",
+                    "required": [
+                      "state",
+                      "updated_at"
+                    ],
+                    "properties": {
+                      "state": {
+                        "type": "string",
+                        "description": "Current state of the device replacement",
+                        "enum": [
+                          "initiated",
+                          "pairing_begun",
+                          "replaced"
+                        ]
+                      },
+                      "new_device_id": {
+                        "type": "string",
+                        "description": "New device id"
+                      },
+                      "new_sim_imsi": {
+                        "type": "string",
+                        "description": "New sim imsi"
+                      },
+                      "updated_at": {
+                        "type": "string",
+                        "description": "Timestamp of provisioning device replacement update",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/subscriptions": {
+      "get": {
+        "description": "Get subscriptions matching some search criteria",
+        "parameters": [
+          {
+            "name": "expiration_date.from",
+            "in": "query",
+            "type": "string",
+            "format": "date-time",
+            "required": false
+          },
+          {
+            "name": "expiration_date.to",
+            "in": "query",
+            "type": "string",
+            "format": "date-time",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscriptions matching the criteria",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "device_id": {
+                  "type": "string"
+                },
+                "expiration_date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "next_renewal_date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "localized_description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "device_id"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "card_info_entity": {
+      "type": "object",
+      "required": [
+        "card_number",
+        "expiration_month",
+        "expiration_year",
+        "brand"
+      ],
+      "properties": {
+        "card_number": {
+          "description": "Masked card number",
+          "type": "string"
+        },
+        "expiration_month": {
+          "description": "ISO Month of when the card expires",
+          "type": "number"
+        },
+        "expiration_year": {
+          "description": "ISO Year of when the card expires",
+          "type": "number"
+        },
+        "brand": {
+          "description": "Brand of card",
+          "type": "string",
+          "enum": [
+            "visa",
+            "master_card",
+            "american_express",
+            "other"
+          ]
+        }
+      }
+    },
+    "error_entity": {
+      "type": "object",
+      "properties": {
+        "statusCode": {
+          "type": "number",
+          "format": "int32"
+        },
+        "error": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "error_id": {
+          "type": "string",
+          "description": "Error identifier"
+        },
+        "root_error_id": {
+          "type": "string",
+          "description": "Identifier of root cause error"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "path",
+              "message"
+            ]
+          }
+        }
+      },
+      "required": [
+        "statusCode",
+        "error",
+        "message",
+        "error_id",
+        "root_error_id"
+      ]
+    },
+    "device_entity": {
+      "type": "object",
+      "required": [
+        "device_id",
+        "short_id",
+        "sim_imsi"
+      ],
+      "properties": {
+        "device_id": {
+          "type": "string"
+        },
+        "short_id": {
+          "type": "string"
+        },
+        "sim_imsi": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "make": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        }
+      }
+    },
+    "provisioning_entity": {
+      "title": "Provisioning entity",
+      "type": "object",
+      "required": [
+        "device_id",
+        "fleet_id",
+        "partner",
+        "market",
+        "vin",
+        "state",
+        "mismatching_vin",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "description": "Unique ID of TEM device, i.e IMSI number"
+        },
+        "fleet_id": {
+          "type": "string",
+          "description": "ID of fleet designation"
+        },
+        "partner": {
+          "type": "string",
+          "description": "Partner identifier. **NB!** Please use `market` instead as partner is deprecated."
+        },
+        "market": {
+          "type": "string",
+          "description": "Market identifier"
+        },
+        "vin": {
+          "type": "string",
+          "description": "Vehicle Identification Number"
+        },
+        "state": {
+          "type": "string",
+          "description": "Current state of the provisioning",
+          "enum": [
+            "created",
+            "active",
+            "inactive"
+          ]
+        },
+        "mismatching_vin": {
+          "type": "boolean",
+          "description": "True if the device detected vin does not match the registered vin. False for dev vehicles and when the vin cannot be detected."
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Timestamp of provisioning creation",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Timestamp of provisioning update",
+          "format": "date-time"
+        },
+        "device_replacement": {
+          "type": "object",
+          "required": [
+            "state",
+            "updated_at"
+          ],
+          "properties": {
+            "state": {
+              "type": "string",
+              "description": "Current state of the device replacement",
+              "enum": [
+                "initiated",
+                "pairing_begun",
+                "replaced"
+              ]
+            },
+            "new_device_id": {
+              "type": "string",
+              "description": "New device id"
+            },
+            "new_sim_imsi": {
+              "type": "string",
+              "description": "New sim imsi"
+            },
+            "updated_at": {
+              "type": "string",
+              "description": "Timestamp of provisioning device replacement update",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+    "offer_entity": {
+      "title": "Product offer entity",
+      "type": "object",
+      "properties": {
+        "currency_code": {
+          "type": "string",
+          "description": "Currency code according to ISO 4217"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of product offer"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of product offer"
+        },
+        "price": {
+          "type": "integer",
+          "description": "Price of product, in lowest denomination possible for this currency"
+        },
+        "product_offer_id": {
+          "type": "string",
+          "description": "Unique ID of this product offer"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of offer",
+          "enum": [
+            "default_recurrent",
+            "one_time",
+            "recurrent"
+          ]
+        },
+        "active": {
+          "type": "boolean",
+          "description": "Indicates if the product is the currently active for the device. Also true if this was the last active product for an expired subscription."
+        },
+        "product_id": {
+          "type": "string",
+          "description": "Product identifier, usually a string containing underscores",
+          "example": "TS_CC_Local_20GB_monthly"
+        },
+        "is_business_offering": {
+          "type": "boolean",
+          "description": "Indicates if product is for businesses",
+          "example": "false"
+        }
+      },
+      "required": [
+        "currency_code",
+        "description",
+        "name",
+        "price",
+        "product_offer_id",
+        "type",
+        "active",
+        "product_id",
+        "is_business_offering"
+      ]
+    },
+    "order_entity": {
+      "title": "Order entity",
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "description": "Unique order identifier"
+        },
+        "amount": {
+          "type": "integer",
+          "description": "Price in the lowest denomination in this currency"
+        },
+        "company_organization_number": {
+          "type": "string",
+          "description": "Organization number of the company product was purchased from (e.g. Telia)"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "currency_code": {
+          "type": "string",
+          "description": "Currency code according to ISO 4217"
+        },
+        "device_id": {
+          "type": "string",
+          "description": "Unique ID of TEM device, i.e IMEI number"
+        },
+        "is_renewal": {
+          "type": "boolean",
+          "description": "Indicates if the order was a subscription renewal"
+        },
+        "localized_description": {
+          "type": "string",
+          "description": "Description of the product, localized into the language used when purchasing it"
+        },
+        "payment_url": {
+          "type": "string",
+          "description": "URL pointing to the transaction for finalizing the purchase"
+        },
+        "product_id": {
+          "type": "string",
+          "description": "DCP product id, normally a string containing underscores"
+        },
+        "product_type": {
+          "type": "string",
+          "description": "One of the values default_recurrent, recurrent, one_time"
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Name of the service product was purchased in, e.g. Telia Sense"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "created",
+            "payment_failed",
+            "payment_processing",
+            "payment_succeeded",
+            "purchase_completed",
+            "purchase_failed",
+            "refund_failed",
+            "refund_succeeded"
+          ],
+          "description": "Current state of order"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "vat_amount": {
+          "type": "integer",
+          "description": "VAT amount in cents"
+        },
+        "vat_number": {
+          "type": "string",
+          "description": "VAT number of the company selling the product (e.g. Telia)"
+        },
+        "vat_percent": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "The percentage of the amount that is VAT rounded to nearest integer. Returns null if the arguments aren't valid numbers or the result is infinity."
+        }
+      },
+      "required": [
+        "_id",
+        "amount",
+        "created_at",
+        "currency_code",
+        "device_id",
+        "is_renewal",
+        "product_id",
+        "state",
+        "updated_at"
+      ]
+    },
+    "subscription_entity": {
+      "type": "object",
+      "properties": {
+        "device_id": {
+          "type": "string"
+        },
+        "expiration_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Indicates that subscription is expiring at the specified date"
+        },
+        "next_renewal_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Indicates that subscription is renewed at the specified date"
+        },
+        "localized_description": {
+          "type": "string"
+        },
+        "product_id": {
+          "type": "string",
+          "description": "Product identifier, usually a string containing underscores",
+          "example": "TS_CC_Local_20GB_monthly"
+        }
+      },
+      "required": [
+        "device_id"
+      ]
+    }
+  },
+  "responses": {
+    "unprocessable_entity": {
+      "description": "Validation failed"
+    }
+  }
+}

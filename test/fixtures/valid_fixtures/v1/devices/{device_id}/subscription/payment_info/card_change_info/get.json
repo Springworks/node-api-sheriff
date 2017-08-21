@@ -1,0 +1,4 @@
+{
+  "payment_url": "https://payment-provider.com/change?merchantId=123456&transactionId=789101112",
+  "transaction_id": "aef7f8f9ad1b01112"
+}

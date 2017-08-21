@@ -1,0 +1,6 @@
+.idea
+node_modules
+*.log
+build
+package-lock.json
+.yo-rc.json

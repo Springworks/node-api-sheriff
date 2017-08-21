@@ -1,0 +1,35 @@
+[
+  {
+    "currency_code": "SEK",
+    "description": "Abonnemang med 20GB surf per månad",
+    "name": "Telia Sense (20 GB)",
+    "price": 9900,
+    "product_offer_id": "014339b7407052b61d6d0a92286ec8ac59e49324",
+    "active": true,
+    "type": "default_recurrent",
+    "product_id": "TS_CC_Local_20GB_monthly",
+    "is_business_offering": false
+  },
+  {
+    "currency_code": "SEK",
+    "description": "Abonnemang med 50GB surf per månad",
+    "name": "Telia Sense (50 GB)",
+    "price": 39900,
+    "product_offer_id": "abcd39b7407052b61d6d0a92286ec8ac59e49324",
+    "active": false,
+    "type": "recurrent",
+    "product_id": "TS_CC_Local_50GB_monthly",
+    "is_business_offering": true
+  },
+  {
+    "currency_code": "SEK",
+    "description": "Din surfmängd är giltig i 30 dagar från köptillfället. Om du väljer att avsluta Telia Sense så kommer den surfmängd som finns kvar när tjänsten avslutas att försvinna.",
+    "name": "10GB",
+    "price": 9900,
+    "product_offer_id": "7ddd83b7ccf84de6e4d035d0e27e918f60d0ec49",
+    "active": false,
+    "type": "one_time",
+    "product_id": "TS_CC_Local_onetime_10GB_30d",
+    "is_business_offering": false
+  }
+]

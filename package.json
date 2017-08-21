@@ -1,0 +1,58 @@
+{
+  "name": "node-server-tester",
+  "version": "0.0.0",
+  "description": "",
+  "files": [
+    "build"
+  ],
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "test": "NODE_ENV=test istanbul cover _mocha",
+    "test-no-cov": "NODE_ENV=test mocha",
+    "test-acceptance": "NODE_ENV=test istanbul cover _mocha -- --fgrep '/acceptance/'",
+    "test-component": "NODE_ENV=test istanbul cover _mocha -- --fgrep '/component/'",
+    "test-unit": "NODE_ENV=test istanbul cover _mocha -- --fgrep '/unit/'",
+    "lint": "eslint --cache .",
+    "build": "rm -rf build && babel src --out-dir build --copy-files",
+    "prepublish": "yarn run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Springworks/m2h-node-server-tester"
+  },
+  "bugs": "https://github.com/Springworks/m2h-node-server-tester/issues",
+  "homepage": "https://github.com/Springworks/m2h-node-server-tester#readme",
+  "author": "Springworks",
+  "engines": {
+    "node": ">=8",
+    "npm": ">=5"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
+  },
+  "devDependencies": {
+    "@springworks/hapi-sov": "^0.5.0",
+    "@springworks/m2h-schema-validator": "^1.1.0",
+    "@springworks/static-api-server": "^3.0.55",
+    "@springworks/test-harness": "^1.5.6",
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^7.2.3",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.26.0",
+    "babel-plugin-transform-async-to-module-method": "^6.22.0",
+    "eslint": "^4.4.1",
+    "eslint-config-springworks": "^7.0.11",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-mocha": "^4.11.0",
+    "eslint-plugin-should-promised": "^2.0.0",
+    "eslint-plugin-springworks": "^2.1.0",
+    "fixture-loader": "^1.1.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.5.0",
+    "swagger-md": "^2.0.1",
+    "swagger-tools": "^0.10.1"
+  }
+}
