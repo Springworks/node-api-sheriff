@@ -1,4 +1,4 @@
-import { constructRequests } from '@springworks/swagger-example-requests';
+import { constructRequests } from '@springworks/request-bakery';
 import url from 'url';
 import rp from 'request-promise';
 import path from 'path';
