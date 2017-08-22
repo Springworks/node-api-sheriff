@@ -1,15 +1,16 @@
 import { constructRequests } from '@springworks/swagger-example-requests';
 import url from 'url';
 import rp from 'request-promise';
+import path from 'path';
 const querystring = require('querystring');
 const logger = console;
 
 export async function testServer(base_url, swagger_spec, generateRequests = constructRequests) {
   const { requests } = await generateRequests(swagger_spec);
   for (const generated_request of requests) {
-    const { method, body, qs, headers } = generated_request;
+    const { method, body, qs, headers, base_path } = generated_request;
     const query_string = Object.keys(qs).length ? `?${querystring.stringify(qs)}` : '';
-    const uri = `${url.resolve(base_url, generated_request.url)}${query_string}`;
+    const uri = `${url.resolve(base_url, path.join(base_path, generated_request.url))}${query_string}`;
     try {
       await rp({ uri, method, qs, headers, json: body });
     }
