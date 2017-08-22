@@ -1,12 +1,11 @@
 {
-  "name": "@springworks/server-tester",
+  "name": "@springworks/api-sheriff",
   "version": "0.0.0",
   "description": "",
   "files": [
     "build"
   ],
   "main": "build/index.js",
-  "private": true,
   "scripts": {
     "test": "NODE_ENV=test istanbul cover _mocha",
     "test-no-cov": "NODE_ENV=test mocha",
@@ -19,10 +18,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Springworks/m2h-node-server-tester"
+    "url": "https://github.com/Springworks/node-api-sheriff"
   },
-  "bugs": "https://github.com/Springworks/m2h-node-server-tester/issues",
-  "homepage": "https://github.com/Springworks/m2h-node-server-tester#readme",
+  "bugs": "https://github.com/Springworks/node-api-sheriff/issues",
+  "homepage": "https://github.com/Springworks/node-api-sheriff#readme",
   "author": "Springworks",
   "engines": {
     "node": ">=8",
