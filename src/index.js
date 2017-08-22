@@ -1,4 +1,4 @@
-import { constructRequests } from '@springworks/request-bakery';
+import { constructRequests } from '@springworks/request-baker';
 import url from 'url';
 import rp from 'request-promise';
 import path from 'path';
