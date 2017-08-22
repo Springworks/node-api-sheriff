@@ -1,6 +1,6 @@
 {
   "name": "@springworks/api-sheriff",
-  "version": "0.0.0",
+  "version": "0.0.0-development",
   "description": "",
   "files": [
     "build"
@@ -14,7 +14,8 @@
     "test-unit": "NODE_ENV=test istanbul cover _mocha -- --fgrep '/unit/'",
     "lint": "eslint --cache .",
     "build": "rm -rf build && babel src --out-dir build --copy-files",
-    "prepublish": "yarn run build"
+    "prepublish": "yarn run build",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
@@ -54,6 +55,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.5.0",
     "swagger-md": "^2.0.1",
-    "swagger-tools": "^0.10.1"
+    "swagger-tools": "^0.10.1",
+    "semantic-release": "^7.0.2"
   }
 }
