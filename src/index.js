@@ -21,7 +21,7 @@ parameters or invalid returned data from the endpoint.
 In the former case please fix in https://github.com/springworks/node-swagger-example-requests.
 In the latter case make sure the returned data complies with the specification.
 Used request data:
-${JSON.stringify({ uri, method, body, qs, headers }, null, 2)}
+${JSON.stringify(generated_request, null, 2)}
 Error returned from the request:
 ${err}`;
       throw new Error(message);
