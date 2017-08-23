@@ -3,7 +3,6 @@ import url from 'url';
 import rp from 'request-promise';
 import path from 'path';
 const querystring = require('querystring');
-const logger = console;
 
 export async function testServer(base_url, swagger_spec, generateRequests = constructRequests) {
   const { requests } = await generateRequests(swagger_spec);
@@ -15,14 +14,17 @@ export async function testServer(base_url, swagger_spec, generateRequests = cons
       await rp({ uri, method, qs, headers, json: body });
     }
     catch (err) {
-      logger.log('\n-------------------------------REQUEST FAILED-------------------------------');
-      logger.log('The request failed which can either be caused by incorrectly generated request\n parameters or invalid returned data from the endpoint.');
-      logger.log('In the former case please fix in https://github.com/springworks/node-swagger-example-requests.');
-      logger.log('In the latter case make sure the returned data complies with the specification.\n');
-      logger.log('Used request data:\n');
-      logger.log({ uri, method, body, qs, headers });
-      logger.log(`\nError returned from the request:\n ${err}`);
-      throw err;
+      const message = `
+-------------------------------REQUEST FAILED-------------------------------
+The request failed which can either be caused by incorrectly generated request
+parameters or invalid returned data from the endpoint.
+In the former case please fix in https://github.com/springworks/node-swagger-example-requests.
+In the latter case make sure the returned data complies with the specification.
+Used request data:
+${JSON.stringify({ uri, method, body, qs, headers }, null, 2)}
+Error returned from the request:
+${err}`;
+      throw new Error(message);
     }
   }
 }
