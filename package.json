@@ -29,7 +29,7 @@
     "npm": ">=5"
   },
   "dependencies": {
-    "@springworks/request-baker": "^1.1.0",
+    "@springworks/request-baker": "^1.2.0",
     "bluebird": "^3.5.0",
     "request": "^2.81.0",
     "request-promise": "^4.2.1"
