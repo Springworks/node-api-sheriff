@@ -1,17 +1,16 @@
 import { constructRequests } from '@springworks/request-baker';
-import url from 'url';
 import rp from 'request-promise';
 import path from 'path';
-const querystring = require('querystring');
 
-export async function testServer(base_url, swagger_spec, generateRequests = constructRequests) {
-  const { requests } = await generateRequests(swagger_spec);
+export async function testServer({ host, port, swagger_spec, generateRequests }) {
+  const getRequests = generateRequests || constructRequests;
+  const { requests } = await getRequests(swagger_spec);
   for (const generated_request of requests) {
-    const { method, body, qs, headers, base_path } = generated_request;
-    const query_string = Object.keys(qs).length ? `?${querystring.stringify(qs)}` : '';
-    const uri = `${url.resolve(base_url, path.join(base_path, generated_request.path))}${query_string}`;
+    const { method, body: json, qs, headers, base_path } = generated_request;
+    const request_path = path.join(base_path || '', generated_request.path);
+    const base_url = `${host.replace(/\/+$/, '')}:${port}`;
     try {
-      await rp({ uri, method, qs, headers, json: body });
+      await rp({ uri: request_path, baseUrl: base_url, method, qs, headers, json });
     }
     catch (err) {
       const message = `
