@@ -38,7 +38,7 @@ describe('test/acceptance/test-server-test.js', () => {
       });
 
       it('should not err', () => {
-        return testServer('http://localhost:3001/', swagger_spec).then(res => {
+        return testServer({ base_url: 'http://localhost', port: 3001, swagger_spec }).then(res => {
         });
       });
 
