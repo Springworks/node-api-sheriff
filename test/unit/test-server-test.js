@@ -105,6 +105,29 @@ describe('test/unit/test-server-test.js', () => {
         });
       });
 
+      describe('excluding port', () => {
+        beforeEach('stub rp', () => {
+          return testServer({ host: 'http://localhost/', swagger_spec: api });
+        });
+
+        it('should invoke a request once with correct params', () => {
+          rpStub.should.be.calledOnce();
+          rpStub.firstCall.args[0].should.match({
+            baseUrl: 'http://localhost',
+            json: {
+              age: 0,
+              name: /.*/,
+              sex: /\b(female|male|other)\b/,
+            },
+            method: 'post',
+            qs: {
+              id: /.*/,
+            },
+            uri: '/users',
+          });
+        });
+      });
+
     });
 
   });

@@ -8,7 +8,7 @@ export async function testServer({ host, port, swagger_spec, generateRequests })
   for (const generated_request of requests) {
     const { method, body: json, qs, headers, base_path } = generated_request;
     const request_path = path.join(base_path || '', generated_request.path);
-    const base_url = `${host.replace(/\/+$/, '')}:${port}`;
+    const base_url = `${host.replace(/\/+$/, '')}${port ? `:${port}` : ''}`;
     try {
       await rp({ uri: request_path, baseUrl: base_url, method, qs, headers, json });
     }
