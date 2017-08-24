@@ -55,7 +55,7 @@ describe('test/unit/test-server-test.js', () => {
 
       describe('without base path', () => {
         beforeEach('stub rp', () => {
-          return testServer({ host: 'http://localhost/', port: 3001, swagger_spec: api });
+          return testServer({ base_url: 'http://localhost/', port: 3001, swagger_spec: api });
         });
 
         it('should invoke a request once with correct params', () => {
@@ -84,7 +84,7 @@ describe('test/unit/test-server-test.js', () => {
         });
 
         beforeEach('stub rp', () => {
-          return testServer({ host: 'http://localhost/', port: 3001, swagger_spec: api });
+          return testServer({ base_url: 'http://localhost/', port: 3001, swagger_spec: api });
         });
 
         it('should invoke a request once with correct params', () => {
@@ -107,7 +107,7 @@ describe('test/unit/test-server-test.js', () => {
 
       describe('excluding port', () => {
         beforeEach('stub rp', () => {
-          return testServer({ host: 'http://localhost/', swagger_spec: api });
+          return testServer({ base_url: 'http://localhost/', swagger_spec: api });
         });
 
         it('should invoke a request once with correct params', () => {

@@ -2,15 +2,15 @@ import { constructRequests } from '@springworks/request-baker';
 import rp from 'request-promise';
 import path from 'path';
 
-export async function testServer({ host, port, swagger_spec, generateRequests }) {
+export async function testServer({ base_url, port, swagger_spec, generateRequests }) {
   const getRequests = generateRequests || constructRequests;
   const { requests } = await getRequests(swagger_spec);
   for (const generated_request of requests) {
     const { method, body: json, qs, headers, base_path } = generated_request;
     const request_path = path.join(base_path || '', generated_request.path);
-    const base_url = `${host.replace(/\/+$/, '')}${port ? `:${port}` : ''}`;
+    const base_url_with_port = `${base_url.replace(/\/+$/, '')}${port ? `:${port}` : ''}`;
     try {
-      await rp({ uri: request_path, baseUrl: base_url, method, qs, headers, json });
+      await rp({ uri: request_path, baseUrl: base_url_with_port, method, qs, headers, json });
     }
     catch (err) {
       const message = `
