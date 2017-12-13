@@ -24,6 +24,7 @@
   "bugs": "https://github.com/Springworks/node-api-sheriff/issues",
   "homepage": "https://github.com/Springworks/node-api-sheriff#readme",
   "author": "Springworks",
+  "license": "MIT",
   "engines": {
     "node": ">=4"
   },
